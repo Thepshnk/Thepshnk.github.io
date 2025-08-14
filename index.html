@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full Python Visual Editor</title>
+    <title>Capengine</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -142,7 +142,6 @@
     </div>
 
     <div class="container">
-        <!-- Панель блоков -->
         <div class="blocks-panel">
             <div class="block-category">
                 <h3>Переменные</h3>
@@ -195,7 +194,6 @@
             </div>
         </div>
 
-        <!-- Рабочая область -->
         <div id="workspace" class="workspace"></div>
     </div>
 
@@ -207,25 +205,21 @@
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
     <script>
-        // Инициализация Pyodide
         let pyodide;
-        async function initPyodide() {
-            pyodide = await loadPyodide({
-                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
-            });
-            console.log("Pyodide загружен!");
-            document.getElementById('output').textContent = "> Python готов к работе!";
-        }
-        initPyodide();
-
-        // Состояние редактора
         let draggedBlock = null;
         let connections = [];
         let nextBlockId = 1;
         let draggingConnection = null;
         let tempLine = null;
 
-        // Сделать все блоки перетаскиваемыми
+        async function initPyodide() {
+            pyodide = await loadPyodide({
+                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
+            });
+            document.getElementById('output').textContent = "> Python готов к работе!";
+        }
+        initPyodide();
+
         document.querySelectorAll('.blocks-panel .block').forEach(block => {
             block.draggable = true;
             block.addEventListener('dragstart', dragStart);
@@ -237,7 +231,6 @@
             draggedBlock.style.position = 'absolute';
             draggedBlock.style.opacity = '0.8';
             
-            // Добавляем коннекторы
             const bottomConnector = document.createElement('div');
             bottomConnector.className = 'connector';
             draggedBlock.appendChild(bottomConnector);
@@ -251,7 +244,6 @@
             e.dataTransfer.setData('block-type', e.target.dataset.type);
         }
 
-        // Рабочая область
         const workspace = document.getElementById('workspace');
         workspace.addEventListener('dragover', e => {
             e.preventDefault();
@@ -270,13 +262,11 @@
                 draggedBlock.style.opacity = '1';
                 workspace.appendChild(draggedBlock);
                 
-                // Настройка соединений
                 setupConnectors(draggedBlock);
                 draggedBlock = null;
             }
         });
 
-        // Соединение блоков
         function setupConnectors(block) {
             const connectors = block.querySelectorAll('.connector');
             connectors.forEach(connector => {
@@ -376,13 +366,11 @@
                 update: updateLine
             });
             
-            // При изменении положения блоков обновляем линии
             const observer = new MutationObserver(updateLine);
             observer.observe(fromBlock, { attributes: true });
             observer.observe(toBlock, { attributes: true });
         }
 
-        // Генерация Python-кода
         document.getElementById('run-btn').addEventListener('click', async () => {
             const code = generateCode();
             document.getElementById('output').textContent = "> Сгенерированный код:\n" + code + "\n\n> Результат:\n";
@@ -395,17 +383,13 @@
             }
         });
 
-        // Очистка рабочей области
         document.getElementById('clear-btn').addEventListener('click', () => {
             workspace.innerHTML = '';
             connections = [];
             document.getElementById('output').textContent = "> Рабочая область очищена";
         });
 
-        // Генерация кода на основе соединений
         function generateCode() {
-            // TODO: Реализовать правильную генерацию кода на основе связей между блоками
-            // Пока просто собираем код из всех блоков по порядку
             let code = "";
             const blocks = workspace.querySelectorAll('.block');
             
