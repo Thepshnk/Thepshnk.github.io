@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Python Visual Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .header {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            padding: 20px;
+        }
+        .blocks-panel {
+            width: 300px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-right: 20px;
+            overflow-y: auto;
+            height: 80vh;
+        }
+        .block-category {
+            margin-bottom: 15px;
+        }
+        .block-category h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .block {
+            background: #FF9800;
+            color: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: grab;
+            position: relative;
+        }
+        .block.var { background: #9C27B0; }
+        .block.control { background: #F44336; }
+        .block.loop { background: #3F51B5; }
+        .block.func { background: #009688; }
+        .block.io { background: #607D8B; }
+        .block.data { background: #795548; }
+        .block.other { background: #00BCD4; }
+        
+        .workspace {
+            flex-grow: 1;
+            min-height: 80vh;
+            background: white;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .block-placeholder {
+            position: absolute;
+            border: 2px dashed #aaa;
+            border-radius: 5px;
+            z-index: -1;
+        }
+        .connector {
+            width: 15px;
+            height: 15px;
+            background: #4CAF50;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: pointer;
+            z-index: 10;
+        }
+        .top-connector {
+            top: -7px;
+            bottom: auto;
+        }
+        .connection-line {
+            position: absolute;
+            background: #4CAF50;
+            height: 2px;
+            transform-origin: left center;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .controls {
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+        }
+        #run-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        #clear-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #output {
+            background: #333;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .block-input {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 2px 5px;
+            margin: 0 3px;
+            width: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Capengine</h1>
+    </div>
+
+    <div class="container">
+        <!-- Панель блоков -->
+        <div class="blocks-panel">
+            <div class="block-category">
+                <h3>Переменные</h3>
+                <div class="block var" data-type="var_decl">var <input class="block-input" value="x"> = <input class="block-input" value="0"></div>
+                <div class="block var" data-type="var_assign"><input class="block-input" value="x"> = <input class="block-input" value="0"></div>
+            </div>
+
+            <div class="block-category">
+                <h3>Управление</h3>
+                <div class="block control" data-type="if">if <input class="block-input" value="condition">:</div>
+                <div class="block control" data-type="elif">elif <input class="block-input" value="condition">:</div>
+                <div class="block control" data-type="else">else:</div>
+            </div>
+
+            <div class="block-category">
+                <h3>Циклы</h3>
+                <div class="block loop" data-type="for">for <input class="block-input" value="i"> in range(<input class="block-input" value="5">):</div>
+                <div class="block loop" data-type="while">while <input class="block-input" value="condition">:</div>
+                <div class="block loop" data-type="break">break</div>
+                <div class="block loop" data-type="continue">continue</div>
+            </div>
+
+            <div class="block-category">
+                <h3>Функции</h3>
+                <div class="block func" data-type="def">def <input class="block-input" value="func_name">():</div>
+                <div class="block func" data-type="return">return <input class="block-input" value="value"></div>
+                <div class="block func" data-type="lambda">lambda <input class="block-input" value="x">: <input class="block-input" value="x+1"></div>
+            </div>
+
+            <div class="block-category">
+                <h3>Ввод/Вывод</h3>
+                <div class="block io" data-type="print">print(<input class="block-input" value="text">)</div>
+                <div class="block io" data-type="input"><input class="block-input" value="var"> = input(<input class="block-input" value="prompt">)</div>
+            </div>
+
+            <div class="block-category">
+                <h3>Данные</h3>
+                <div class="block data" data-type="list">[<input class="block-input" value="1,2,3">]</div>
+                <div class="block data" data-type="dict">{<input class="block-input" value="key:value">}</div>
+                <div class="block data" data-type="tuple">(<input class="block-input" value="1,2">)</div>
+            </div>
+
+            <div class="block-category">
+                <h3>Другое</h3>
+                <div class="block other" data-type="import">import <input class="block-input" value="module"></div>
+                <div class="block other" data-type="try">try:</div>
+                <div class="block other" data-type="except">except <input class="block-input" value="Exception">:</div>
+                <div class="block other" data-type="finally">finally:</div>
+                <div class="block other" data-type="with">with <input class="block-input" value="resource"> as <input class="block-input" value="alias">:</div>
+            </div>
+        </div>
+
+        <!-- Рабочая область -->
+        <div id="workspace" class="workspace"></div>
+    </div>
+
+    <div class="controls">
+        <button id="run-btn">▶ Запустить</button>
+        <button id="clear-btn">❌ Очистить</button>
+        <div id="output">> Начните создавать программу...</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+    <script>
+        // Инициализация Pyodide
+        let pyodide;
+        async function initPyodide() {
+            pyodide = await loadPyodide({
+                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.23.4/full/"
+            });
+            console.log("Pyodide загружен!");
+            document.getElementById('output').textContent = "> Python готов к работе!";
+        }
+        initPyodide();
+
+        // Состояние редактора
+        let draggedBlock = null;
+        let connections = [];
+        let nextBlockId = 1;
+        let draggingConnection = null;
+        let tempLine = null;
+
+        // Сделать все блоки перетаскиваемыми
+        document.querySelectorAll('.blocks-panel .block').forEach(block => {
+            block.draggable = true;
+            block.addEventListener('dragstart', dragStart);
+        });
+
+        function dragStart(e) {
+            draggedBlock = e.target.cloneNode(true);
+            draggedBlock.id = 'block-' + nextBlockId++;
+            draggedBlock.style.position = 'absolute';
+            draggedBlock.style.opacity = '0.8';
+            
+            // Добавляем коннекторы
+            const bottomConnector = document.createElement('div');
+            bottomConnector.className = 'connector';
+            draggedBlock.appendChild(bottomConnector);
+            
+            const topConnector = document.createElement('div');
+            topConnector.className = 'connector top-connector';
+            draggedBlock.appendChild(topConnector);
+            
+            document.body.appendChild(draggedBlock);
+            e.dataTransfer.setDragImage(draggedBlock, 75, 10);
+            e.dataTransfer.setData('block-type', e.target.dataset.type);
+        }
+
+        // Рабочая область
+        const workspace = document.getElementById('workspace');
+        workspace.addEventListener('dragover', e => {
+            e.preventDefault();
+            if (draggedBlock) {
+                draggedBlock.style.left = (e.clientX - workspace.getBoundingClientRect().left - 75) + 'px';
+                draggedBlock.style.top = (e.clientY - workspace.getBoundingClientRect().top - 10) + 'px';
+            }
+        });
+
+        workspace.addEventListener('drop', e => {
+            e.preventDefault();
+            if (draggedBlock) {
+                draggedBlock.style.position = 'absolute';
+                draggedBlock.style.left = (e.clientX - workspace.getBoundingClientRect().left - 75) + 'px';
+                draggedBlock.style.top = (e.clientY - workspace.getBoundingClientRect().top - 10) + 'px';
+                draggedBlock.style.opacity = '1';
+                workspace.appendChild(draggedBlock);
+                
+                // Настройка соединений
+                setupConnectors(draggedBlock);
+                draggedBlock = null;
+            }
+        });
+
+        // Соединение блоков
+        function setupConnectors(block) {
+            const connectors = block.querySelectorAll('.connector');
+            connectors.forEach(connector => {
+                connector.addEventListener('mousedown', startConnection);
+            });
+        }
+
+        function startConnection(e) {
+            e.stopPropagation();
+            draggingConnection = {
+                block: e.target.parentNode,
+                connector: e.target,
+                x: e.clientX,
+                y: e.clientY
+            };
+            
+            tempLine = document.createElement('div');
+            tempLine.className = 'connection-line';
+            workspace.appendChild(tempLine);
+            
+            document.addEventListener('mousemove', drawTempConnection);
+            document.addEventListener('mouseup', finishConnection);
+        }
+
+        function drawTempConnection(e) {
+            const start = draggingConnection.connector.getBoundingClientRect();
+            const startX = start.left + start.width/2 - workspace.getBoundingClientRect().left;
+            const startY = start.top + start.height/2 - workspace.getBoundingClientRect().top;
+            
+            const endX = e.clientX - workspace.getBoundingClientRect().left;
+            const endY = e.clientY - workspace.getBoundingClientRect().top;
+            
+            const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+            const angle = Math.atan2(endY - startY, endX - startX);
+            
+            tempLine.style.left = startX + 'px';
+            tempLine.style.top = startY + 'px';
+            tempLine.style.width = length + 'px';
+            tempLine.style.transform = `rotate(${angle}rad)`;
+        }
+
+        function finishConnection(e) {
+            document.removeEventListener('mousemove', drawTempConnection);
+            document.removeEventListener('mouseup', finishConnection);
+            
+            if (tempLine) {
+                workspace.removeChild(tempLine);
+                tempLine = null;
+            }
+            
+            const target = document.elementFromPoint(e.clientX, e.clientY);
+            if (target && target.classList.contains('connector') && 
+                target !== draggingConnection.connector &&
+                target.parentNode !== draggingConnection.block) {
+                
+                createConnection(
+                    draggingConnection.block, 
+                    draggingConnection.connector,
+                    target.parentNode, 
+                    target
+                );
+            }
+            
+            draggingConnection = null;
+        }
+
+        function createConnection(fromBlock, fromConnector, toBlock, toConnector) {
+            const line = document.createElement('div');
+            line.className = 'connection-line';
+            workspace.appendChild(line);
+            
+            function updateLine() {
+                const start = fromConnector.getBoundingClientRect();
+                const end = toConnector.getBoundingClientRect();
+                const workspaceRect = workspace.getBoundingClientRect();
+                
+                const startX = start.left + start.width/2 - workspaceRect.left;
+                const startY = start.top + start.height/2 - workspaceRect.top;
+                const endX = end.left + end.width/2 - workspaceRect.left;
+                const endY = end.top + end.height/2 - workspaceRect.top;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX);
+                
+                line.style.left = startX + 'px';
+                line.style.top = startY + 'px';
+                line.style.width = length + 'px';
+                line.style.transform = `rotate(${angle}rad)`;
+            }
+            
+            updateLine();
+            
+            connections.push({
+                from: fromBlock.id,
+                to: toBlock.id,
+                line: line,
+                update: updateLine
+            });
+            
+            // При изменении положения блоков обновляем линии
+            const observer = new MutationObserver(updateLine);
+            observer.observe(fromBlock, { attributes: true });
+            observer.observe(toBlock, { attributes: true });
+        }
+
+        // Генерация Python-кода
+        document.getElementById('run-btn').addEventListener('click', async () => {
+            const code = generateCode();
+            document.getElementById('output').textContent = "> Сгенерированный код:\n" + code + "\n\n> Результат:\n";
+            
+            try {
+                const result = await pyodide.runPythonAsync(code);
+                document.getElementById('output').textContent += result !== undefined ? result : "Код выполнен успешно";
+            } catch (err) {
+                document.getElementById('output').textContent += "Ошибка: " + err;
+            }
+        });
+
+        // Очистка рабочей области
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            workspace.innerHTML = '';
+            connections = [];
+            document.getElementById('output').textContent = "> Рабочая область очищена";
+        });
+
+        // Генерация кода на основе соединений
+        function generateCode() {
+            // TODO: Реализовать правильную генерацию кода на основе связей между блоками
+            // Пока просто собираем код из всех блоков по порядку
+            let code = "";
+            const blocks = workspace.querySelectorAll('.block');
+            
+            blocks.forEach(block => {
+                code += getBlockCode(block) + "\n";
+            });
+            
+            return code;
+        }
+
+        function getBlockCode(block) {
+            const type = block.dataset.type;
+            const inputs = block.querySelectorAll('.block-input');
+            
+            switch(type) {
+                case 'var_decl': return `${inputs[0].value} = ${inputs[1].value}`;
+                case 'var_assign': return `${inputs[0].value} = ${inputs[1].value}`;
+                case 'if': return `if ${inputs[0].value}:`;
+                case 'elif': return `elif ${inputs[0].value}:`;
+                case 'else': return `else:`;
+                case 'for': return `for ${inputs[0].value} in range(${inputs[1].value}):`;
+                case 'while': return `while ${inputs[0].value}:`;
+                case 'break': return `break`;
+                case 'continue': return `continue`;
+                case 'def': return `def ${inputs[0].value}():`;
+                case 'return': return `return ${inputs[0].value}`;
+                case 'lambda': return `lambda ${inputs[0].value}: ${inputs[1].value}`;
+                case 'print': return `print(${inputs[0].value})`;
+                case 'input': return `${inputs[0].value} = input(${inputs[1].value})`;
+                case 'list': return `[${inputs[0].value}]`;
+                case 'dict': return `{${inputs[0].value}}`;
+                case 'tuple': return `(${inputs[0].value})`;
+                case 'import': return `import ${inputs[0].value}`;
+                case 'try': return `try:`;
+                case 'except': return `except ${inputs[0].value}:`;
+                case 'finally': return `finally:`;
+                case 'with': return `with ${inputs[0].value} as ${inputs[1].value}:`;
+                default: return `# Неизвестный блок: ${type}`;
+            }
+        }
+    </script>
+</body>
+</html>
