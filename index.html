@@ -5,41 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capengine</title>
     <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #8a2be2;
+            --header-bg: #4CAF50;
+            --block-bg: #FF9800;
+            --block-var: #9C27B0;
+            --block-control: #F44336;
+            --block-loop: #3F51B5;
+            --block-func: #009688;
+            --block-io: #607D8B;
+            --block-data: #795548;
+            --block-other: #00BCD4;
+            --connector-color: #4CAF50;
+            --output-bg: #333;
+            --output-text: #0f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #e6e6e6;
+            --text-secondary: #adb5bd;
+            --accent-color: #9b51e0;
+            --header-bg: #2e7d32;
+            --block-bg: #f57c00;
+            --block-var: #7b1fa2;
+            --block-control: #d32f2f;
+            --block-loop: #303f9f;
+            --block-func: #00796b;
+            --block-io: #455a64;
+            --block-data: #5d4037;
+            --block-other: #0097a7;
+            --connector-color: #388e3c;
+            --output-bg: #1e1e1e;
+            --output-text: #4caf50;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            background: #f5f5f5;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
+
         .header {
-            background: #4CAF50;
+            background: var(--header-bg);
             color: white;
             padding: 15px;
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
         .container {
             display: flex;
             padding: 20px;
         }
+
         .blocks-panel {
             width: 300px;
-            background: #fff;
+            background: var(--bg-secondary);
             padding: 10px;
             border-radius: 5px;
             margin-right: 20px;
             overflow-y: auto;
             height: 80vh;
         }
+
         .block-category {
             margin-bottom: 15px;
         }
+
         .block-category h3 {
             margin-top: 0;
-            color: #333;
-            border-bottom: 1px solid #eee;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--text-secondary);
             padding-bottom: 5px;
         }
+
         .block {
-            background: #FF9800;
             color: white;
             padding: 10px;
             margin: 5px 0;
@@ -47,32 +107,36 @@
             cursor: grab;
             position: relative;
         }
-        .block.var { background: #9C27B0; }
-        .block.control { background: #F44336; }
-        .block.loop { background: #3F51B5; }
-        .block.func { background: #009688; }
-        .block.io { background: #607D8B; }
-        .block.data { background: #795548; }
-        .block.other { background: #00BCD4; }
+
+        .block.basic { background: var(--block-bg); }
+        .block.var { background: var(--block-var); }
+        .block.control { background: var(--block-control); }
+        .block.loop { background: var(--block-loop); }
+        .block.func { background: var(--block-func); }
+        .block.io { background: var(--block-io); }
+        .block.data { background: var(--block-data); }
+        .block.other { background: var(--block-other); }
         
         .workspace {
             flex-grow: 1;
             min-height: 80vh;
-            background: white;
+            background: var(--bg-secondary);
             border-radius: 5px;
             position: relative;
             overflow: hidden;
         }
+
         .block-placeholder {
             position: absolute;
-            border: 2px dashed #aaa;
+            border: 2px dashed var(--text-secondary);
             border-radius: 5px;
             z-index: -1;
         }
+
         .connector {
             width: 15px;
             height: 15px;
-            background: #4CAF50;
+            background: var(--connector-color);
             border-radius: 50%;
             position: absolute;
             bottom: -7px;
@@ -81,25 +145,29 @@
             cursor: pointer;
             z-index: 10;
         }
+
         .top-connector {
             top: -7px;
             bottom: auto;
         }
+
         .connection-line {
             position: absolute;
-            background: #4CAF50;
+            background: var(--connector-color);
             height: 2px;
             transform-origin: left center;
             z-index: 5;
             pointer-events: none;
         }
+
         .controls {
             padding: 15px;
-            background: #fff;
-            border-top: 1px solid #ddd;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--text-secondary);
         }
+
         #run-btn {
-            background: #4CAF50;
+            background: var(--header-bg);
             color: white;
             border: none;
             padding: 10px 20px;
@@ -107,17 +175,19 @@
             cursor: pointer;
             margin-right: 10px;
         }
+
         #clear-btn {
-            background: #f44336;
+            background: var(--block-control);
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
         }
+
         #output {
-            background: #333;
-            color: #0f0;
+            background: var(--output-bg);
+            color: var(--output-text);
             padding: 15px;
             border-radius: 5px;
             margin-top: 15px;
@@ -126,6 +196,7 @@
             max-height: 200px;
             overflow-y: auto;
         }
+
         .block-input {
             background: rgba(255,255,255,0.3);
             border: none;
@@ -134,11 +205,96 @@
             margin: 0 3px;
             width: 60px;
         }
+
+        .input-type-toggle {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            margin: 0 10px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .community-panel {
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .community-panel h3 {
+            margin-top: 0;
+            color: var(--text-primary);
+        }
+
+        #community-input {
+            width: calc(100% - 90px);
+            padding: 8px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        #community-submit {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Capengine</h1>
+        <button class="theme-toggle" id="theme-toggle">🌙 Тёмная</button>
     </div>
 
     <div class="container">
@@ -174,7 +330,17 @@
             <div class="block-category">
                 <h3>Ввод/Вывод</h3>
                 <div class="block io" data-type="print">print(<input class="block-input" value="text">)</div>
-                <div class="block io" data-type="input"><input class="block-input" value="var"> = input(<input class="block-input" value="prompt">)</div>
+                <div class="block io" data-type="input">
+                    <input class="block-input" value="var"> = input(<input class="block-input" value="prompt">)
+                    <div class="input-type-toggle">
+                        <span>Текст</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" class="input-type-checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <span>Переменная</span>
+                    </div>
+                </div>
             </div>
 
             <div class="block-category">
@@ -191,6 +357,15 @@
                 <div class="block other" data-type="except">except <input class="block-input" value="Exception">:</div>
                 <div class="block other" data-type="finally">finally:</div>
                 <div class="block other" data-type="with">with <input class="block-input" value="resource"> as <input class="block-input" value="alias">:</div>
+            </div>
+
+            <div class="community-panel">
+                <h3>Сообщество</h3>
+                <div>
+                    <input type="text" id="community-input" placeholder="Введите команду...">
+                    <button id="community-submit">Отправить</button>
+                </div>
+                <div id="community-output" style="margin-top: 10px; font-size: 12px;"></div>
             </div>
         </div>
 
@@ -211,6 +386,7 @@
         let nextBlockId = 1;
         let draggingConnection = null;
         let tempLine = null;
+        let currentTheme = 'light';
 
         async function initPyodide() {
             pyodide = await loadPyodide({
@@ -224,6 +400,58 @@
             block.draggable = true;
             block.addEventListener('dragstart', dragStart);
         });
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('theme-toggle').textContent = currentTheme === 'light' ? '🌙 Тёмная' : '☀️ Светлая';
+            localStorage.setItem('theme', currentTheme);
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            currentTheme = savedTheme;
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            document.getElementById('theme-toggle').textContent = currentTheme === 'light' ? '🌙 Тёмная' : '☀️ Светлая';
+        }
+
+        document.querySelectorAll('.input-type-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const inputBlock = this.closest('.block');
+                const promptInput = inputBlock.querySelector('.block-input:nth-child(2)');
+                
+                if (this.checked) {
+                    if (!promptInput.value.includes('"') && !promptInput.value.includes("'")) {
+                        promptInput.value = `"${promptInput.value}"`;
+                    }
+                } else {
+                    promptInput.value = promptInput.value.replace(/['"]/g, '');
+                }
+            });
+        });
+
+        document.getElementById('community-submit').addEventListener('click', handleCommunityCommand);
+        function handleCommunityCommand() {
+            const input = document.getElementById('community-input').value;
+            const output = document.getElementById('community-output');
+            
+            if (input.trim() === '') return;
+            
+            output.innerHTML = `<div>> ${new Date().toLocaleTimeString()}: ${input}</div>` + output.innerHTML;
+            document.getElementById('community-input').value = '';
+            
+            if (input === 'help') {
+                output.innerHTML = `<div>> Доступные команды: help, theme, clear</div>` + output.innerHTML;
+            } else if (input === 'theme') {
+                toggleTheme();
+                output.innerHTML = `<div>> Тема переключена на ${currentTheme}</div>` + output.innerHTML;
+            } else if (input === 'clear') {
+                output.innerHTML = '';
+            } else {
+                output.innerHTML = `<div>> Неизвестная команда: ${input}</div>` + output.innerHTML;
+            }
+        }
 
         function dragStart(e) {
             draggedBlock = e.target.cloneNode(true);
