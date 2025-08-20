@@ -23,6 +23,9 @@
             --connector-color: #4CAF50;
             --output-bg: #333;
             --output-text: #0f0;
+            --chat-bg: #f1f3f5;
+            --chat-msg-bg: #e9ecef;
+            --chat-user-msg-bg: #d8f8d8;
         }
 
         [data-theme="dark"] {
@@ -43,6 +46,9 @@
             --connector-color: #388e3c;
             --output-bg: #1e1e1e;
             --output-text: #4caf50;
+            --chat-bg: #2a2d31;
+            --chat-msg-bg: #383c43;
+            --chat-user-msg-bg: #2c4a3a;
         }
 
         body {
@@ -63,6 +69,19 @@
             align-items: center;
         }
 
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .header-nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
         .theme-toggle {
             background: rgba(255,255,255,0.2);
             border: none;
@@ -76,6 +95,7 @@
         .container {
             display: flex;
             padding: 20px;
+            gap: 20px;
         }
 
         .blocks-panel {
@@ -83,7 +103,6 @@
             background: var(--bg-secondary);
             padding: 10px;
             border-radius: 5px;
-            margin-right: 20px;
             overflow-y: auto;
             height: 80vh;
         }
@@ -124,13 +143,6 @@
             border-radius: 5px;
             position: relative;
             overflow: hidden;
-        }
-
-        .block-placeholder {
-            position: absolute;
-            border: 2px dashed var(--text-secondary);
-            border-radius: 5px;
-            z-index: -1;
         }
 
         .connector {
@@ -259,20 +271,52 @@
             transform: translateX(20px);
         }
 
-        .community-panel {
+        .chat-container {
+            width: 300px;
             background: var(--bg-secondary);
-            padding: 10px;
             border-radius: 5px;
-            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
         }
 
-        .community-panel h3 {
-            margin-top: 0;
-            color: var(--text-primary);
+        .chat-header {
+            padding: 15px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
         }
 
-        #community-input {
-            width: calc(100% - 90px);
+        .chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: var(--chat-bg);
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: var(--chat-msg-bg);
+            max-width: 80%;
+        }
+
+        .chat-message.user {
+            background: var(--chat-user-msg-bg);
+            margin-left: auto;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--text-secondary);
+            background: var(--bg-secondary);
+        }
+
+        #chat-input {
+            flex: 1;
             padding: 8px;
             border: 1px solid var(--text-secondary);
             border-radius: 4px;
@@ -280,7 +324,7 @@
             color: var(--text-primary);
         }
 
-        #community-submit {
+        #chat-send {
             background: var(--accent-color);
             color: white;
             border: none;
@@ -289,93 +333,148 @@
             cursor: pointer;
             margin-left: 10px;
         }
+
+        .support-page {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .support-links {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .support-link {
+            display: block;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .support-link:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Capengine</h1>
+        <div class="header-nav">
+            <a href="#" onclick="showPage('main')">Главная</a>
+            <a href="#" onclick="showPage('support')">Поддержка</a>
+        </div>
         <button class="theme-toggle" id="theme-toggle">🌙 Тёмная</button>
     </div>
 
-    <div class="container">
-        <div class="blocks-panel">
-            <div class="block-category">
-                <h3>Переменные</h3>
-                <div class="block var" data-type="var_decl">var <input class="block-input" value="x"> = <input class="block-input" value="0"></div>
-                <div class="block var" data-type="var_assign"><input class="block-input" value="x"> = <input class="block-input" value="0"></div>
-            </div>
+    <div id="main-page">
+        <div class="container">
+            <div class="blocks-panel">
+                <div class="block-category">
+                    <h3>Переменные</h3>
+                    <div class="block var" data-type="var_decl">var <input class="block-input" value="x"> = <input class="block-input" value="0"></div>
+                    <div class="block var" data-type="var_assign"><input class="block-input" value="x"> = <input class="block-input" value="0"></div>
+                </div>
 
-            <div class="block-category">
-                <h3>Управление</h3>
-                <div class="block control" data-type="if">if <input class="block-input" value="condition">:</div>
-                <div class="block control" data-type="elif">elif <input class="block-input" value="condition">:</div>
-                <div class="block control" data-type="else">else:</div>
-            </div>
+                <div class="block-category">
+                    <h3>Управление</h3>
+                    <div class="block control" data-type="if">if <input class="block-input" value="condition">:</div>
+                    <div class="block control" data-type="elif">elif <input class="block-input" value="condition">:</div>
+                    <div class="block control" data-type="else">else:</div>
+                </div>
 
-            <div class="block-category">
-                <h3>Циклы</h3>
-                <div class="block loop" data-type="for">for <input class="block-input" value="i"> in range(<input class="block-input" value="5">):</div>
-                <div class="block loop" data-type="while">while <input class="block-input" value="condition">:</div>
-                <div class="block loop" data-type="break">break</div>
-                <div class="block loop" data-type="continue">continue</div>
-            </div>
+                <div class="block-category">
+                    <h3>Циклы</h3>
+                    <div class="block loop" data-type="for">for <input class="block-input" value="i"> in range(<input class="block-input" value="5">):</div>
+                    <div class="block loop" data-type="while">while <input class="block-input" value="condition">:</div>
+                    <div class="block loop" data-type="break">break</div>
+                    <div class="block loop" data-type="continue">continue</div>
+                </div>
 
-            <div class="block-category">
-                <h3>Функции</h3>
-                <div class="block func" data-type="def">def <input class="block-input" value="func_name">():</div>
-                <div class="block func" data-type="return">return <input class="block-input" value="value"></div>
-                <div class="block func" data-type="lambda">lambda <input class="block-input" value="x">: <input class="block-input" value="x+1"></div>
-            </div>
+                <div class="block-category">
+                    <h3>Функции</h3>
+                    <div class="block func" data-type="def">def <input class="block-input" value="func_name">():</div>
+                    <div class="block func" data-type="return">return <input class="block-input" value="value"></div>
+                    <div class="block func" data-type="lambda">lambda <input class="block-input" value="x">: <input class="block-input" value="x+1"></div>
+                </div>
 
-            <div class="block-category">
-                <h3>Ввод/Вывод</h3>
-                <div class="block io" data-type="print">print(<input class="block-input" value="text">)</div>
-                <div class="block io" data-type="input">
-                    <input class="block-input" value="var"> = input(<input class="block-input" value="prompt">)
-                    <div class="input-type-toggle">
-                        <span>Текст</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" class="input-type-checkbox">
-                            <span class="slider"></span>
-                        </label>
-                        <span>Переменная</span>
+                <div class="block-category">
+                    <h3>Ввод/Вывод</h3>
+                    <div class="block io" data-type="print">print(<input class="block-input" value="text">)</div>
+                    <div class="block io" data-type="input">
+                        <input class="block-input" value="var"> = input(<input class="block-input" value="prompt">)
+                        <div class="input-type-toggle">
+                            <span>Текст</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="input-type-checkbox">
+                                <span class="slider"></span>
+                            </label>
+                            <span>Переменная</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="block-category">
-                <h3>Данные</h3>
-                <div class="block data" data-type="list">[<input class="block-input" value="1,2,3">]</div>
-                <div class="block data" data-type="dict">{<input class="block-input" value="key:value">}</div>
-                <div class="block data" data-type="tuple">(<input class="block-input" value="1,2">)</div>
-            </div>
-
-            <div class="block-category">
-                <h3>Другое</h3>
-                <div class="block other" data-type="import">import <input class="block-input" value="module"></div>
-                <div class="block other" data-type="try">try:</div>
-                <div class="block other" data-type="except">except <input class="block-input" value="Exception">:</div>
-                <div class="block other" data-type="finally">finally:</div>
-                <div class="block other" data-type="with">with <input class="block-input" value="resource"> as <input class="block-input" value="alias">:</div>
-            </div>
-
-            <div class="community-panel">
-                <h3>Сообщество</h3>
-                <div>
-                    <input type="text" id="community-input" placeholder="Введите команду...">
-                    <button id="community-submit">Отправить</button>
+                <div class="block-category">
+                    <h3>Данные</h3>
+                    <div class="block data" data-type="list">[<input class="block-input" value="1,2,3">]</div>
+                    <div class="block data" data-type="dict">{<input class="block-input" value="key:value">}</div>
+                    <div class="block data" data-type="tuple">(<input class="block-input" value="1,2">)</div>
                 </div>
-                <div id="community-output" style="margin-top: 10px; font-size: 12px;"></div>
+
+                <div class="block-category">
+                    <h3>Другое</h3>
+                    <div class="block other" data-type="import">import <input class="block-input" value="module"></div>
+                    <div class="block other" data-type="try">try:</div>
+                    <div class="block other" data-type="except">except <input class="block-input" value="Exception">:</div>
+                    <div class="block other" data-type="finally">finally:</div>
+                    <div class="block other" data-type="with">with <input class="block-input" value="resource"> as <input class="block-input" value="alias">:</div>
+                </div>
+            </div>
+
+            <div id="workspace" class="workspace"></div>
+
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h3>Чат с сообществом</h3>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="chat-message">Добро пожаловать в чат! Напишите сообщение...</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Введите сообщение...">
+                    <button id="chat-send">➤</button>
+                </div>
             </div>
         </div>
 
-        <div id="workspace" class="workspace"></div>
+        <div class="controls">
+            <button id="run-btn">▶ Запустить</button>
+            <button id="clear-btn">❌ Очистить</button>
+            <div id="output">> Начните создавать программу...</div>
+        </div>
     </div>
 
-    <div class="controls">
-        <button id="run-btn">▶ Запустить</button>
-        <button id="clear-btn">❌ Очистить</button>
-        <div id="output">> Начните создавать программу...</div>
+    <div id="support-page" class="support-page" style="display: none;">
+        <h2>Поддержка разработки</h2>
+        <p>Ваша поддержка помогает развивать проект и добавлять новые функции!</p>
+        
+        <div class="support-links">
+            <a href="https://www.donationalerts.com/r/capengine" class="support-link" target="_blank">
+                <h3>💰 Финансовая поддержка</h3>
+                <p>DonationAlerts - поддержка идей проекта</p>
+            </a>
+            
+            <a href="https://t.me/capengine" class="support-link" target="_blank">
+                <h3>💬 Telegram-чат</h3>
+                <p>Присоединяйтесь к нашему сообществу</p>
+            </a>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
@@ -387,6 +486,16 @@
         let draggingConnection = null;
         let tempLine = null;
         let currentTheme = 'light';
+
+        function showPage(page) {
+            if (page === 'main') {
+                document.getElementById('main-page').style.display = 'block';
+                document.getElementById('support-page').style.display = 'none';
+            } else if (page === 'support') {
+                document.getElementById('main-page').style.display = 'none';
+                document.getElementById('support-page').style.display = 'block';
+            }
+        }
 
         async function initPyodide() {
             pyodide = await loadPyodide({
@@ -431,26 +540,32 @@
             });
         });
 
-        document.getElementById('community-submit').addEventListener('click', handleCommunityCommand);
-        function handleCommunityCommand() {
-            const input = document.getElementById('community-input').value;
-            const output = document.getElementById('community-output');
+        document.getElementById('chat-send').addEventListener('click', sendChatMessage);
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const messages = document.getElementById('chat-messages');
             
-            if (input.trim() === '') return;
+            if (input.value.trim() === '') return;
             
-            output.innerHTML = `<div>> ${new Date().toLocaleTimeString()}: ${input}</div>` + output.innerHTML;
-            document.getElementById('community-input').value = '';
+            const userMessage = document.createElement('div');
+            userMessage.className = 'chat-message user';
+            userMessage.textContent = input.value;
+            messages.appendChild(userMessage);
             
-            if (input === 'help') {
-                output.innerHTML = `<div>> Доступные команды: help, theme, clear</div>` + output.innerHTML;
-            } else if (input === 'theme') {
-                toggleTheme();
-                output.innerHTML = `<div>> Тема переключена на ${currentTheme}</div>` + output.innerHTML;
-            } else if (input === 'clear') {
-                output.innerHTML = '';
-            } else {
-                output.innerHTML = `<div>> Неизвестная команда: ${input}</div>` + output.innerHTML;
-            }
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+            
+            setTimeout(() => {
+                const botMessage = document.createElement('div');
+                botMessage.className = 'chat-message';
+                botMessage.textContent = 'Спасибо за ваше сообщение! Мы ответим в ближайшее время.';
+                messages.appendChild(botMessage);
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
         }
 
         function dragStart(e) {
